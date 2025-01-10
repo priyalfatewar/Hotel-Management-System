@@ -1,0 +1,33 @@
+import java.util.Date;
+
+public class Booking {
+    private int bookingId;
+    private String customerName;
+    private int roomId;
+    private Date checkInDate;
+    private Date checkOutDate;
+
+    public Booking(int bookingId, String customerName, int roomId, Date checkInDate, Date checkOutDate) {
+        this.bookingId = bookingId;
+        this.customerName = customerName;
+        this.roomId = roomId;
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
+    }
+
+    // Getters and Setters
+    public int getBookingId() { return bookingId; }
+    public void setBookingId(int bookingId) { this.bookingId = bookingId; }
+
+    public String getCustomerName() { return customerName; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
+
+    public int getRoomId() { return roomId; }
+    public void setRoomId(int roomId) { this.roomId = roomId; }
+
+    public Date getCheckInDate() { return checkInDate; }
+    public void setCheckInDate(Date checkInDate) { this.checkInDate = checkInDate; }
+
+    public Date getCheckOutDate() { return checkOutDate; }
+    public void setCheckOutDate(Date checkOutDate) { this.checkOutDate = checkOutDate; }
+}
