@@ -1,0 +1,108 @@
+import java.sql.*;
+import java.util.Scanner;
+
+public class HotelManagementSystem {
+
+    private static Connection connection = DBConnection.connect();
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        if (connection == null) {
+            System.out.println("Database connection failed!");
+            return;
+        }
+        while (true) {
+            System.out.println("1. Add Room");
+            System.out.println("2. View Available Rooms");
+            System.out.println("3. Book Room");
+            System.out.println("4. View Bookings");
+            System.out.println("5. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1: addRoom(); break;
+                case 2: viewAvailableRooms(); break;
+                case 3: bookRoom(); break;
+                case 4: viewBookings(); break;
+                case 5: System.exit(0); break;
+                default: System.out.println("Invalid choice! Try again.");
+            }
+        }
+    }
+
+    private static void addRoom() {
+        System.out.print("Enter room type (Single/Double/Suite): ");
+        String roomType = scanner.next();
+        System.out.print("Enter room price: ");
+        double price = scanner.nextDouble();
+        String query = "INSERT INTO rooms (room_type, price, status) VALUES (?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, roomType);
+            stmt.setDouble(2, price);
+            stmt.setString(3, "Available");
+            stmt.executeUpdate();
+            System.out.println("Room added successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void viewAvailableRooms() {
+        String query = "SELECT * FROM rooms WHERE status = 'Available'";
+        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                System.out.println("Room ID: " + rs.getInt("room_id") +
+                        ", Type: " + rs.getString("room_type") +
+                        ", Price: " + rs.getDouble("price"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void bookRoom() {
+        System.out.print("Enter customer name: ");
+        String customerName = scanner.next();
+        System.out.print("Enter room ID: ");
+        int roomId = scanner.nextInt();
+        System.out.print("Enter check-in date (YYYY-MM-DD): ");
+        String checkInDate = scanner.next();
+        System.out.print("Enter check-out date (YYYY-MM-DD): ");
+        String checkOutDate = scanner.next();
+
+        String query = "INSERT INTO bookings (customer_name, room_id, check_in, check_out) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, customerName);
+            stmt.setInt(2, roomId);
+            stmt.setString(3, checkInDate);
+            stmt.setString(4, checkOutDate);
+            stmt.executeUpdate();
+
+            // Update room status to "Booked"
+            String updateRoomQuery = "UPDATE rooms SET status = 'Booked' WHERE room_id = ?";
+            try (PreparedStatement updateStmt = connection.prepareStatement(updateRoomQuery)) {
+                updateStmt.setInt(1, roomId);
+                updateStmt.executeUpdate();
+            }
+
+            System.out.println("Room booked successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void viewBookings() {
+        String query = "SELECT * FROM bookings";
+        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                System.out.println("Booking ID: " + rs.getInt("booking_id") +
+                        ", Customer Name: " + rs.getString("customer_name") +
+                        ", Room ID: " + rs.getInt("room_id") +
+                        ", Check-in: " + rs.getDate("check_in") +
+                        ", Check-out: " + rs.getDate("check_out"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
